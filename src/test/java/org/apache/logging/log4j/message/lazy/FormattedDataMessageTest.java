@@ -27,18 +27,18 @@ public class FormattedDataMessageTest {
   String messageFormat;
   Map<String, Object> dataFields;
 
-//  @BeforeAll
-//  static void setupAll() {
-//    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-//    Configuration loggerConfig = loggerContext.getConfiguration();
-//    LogstashLayout layout = LogstashLayout
-//        .newBuilder()
-//        .setConfiguration(loggerConfig)
-//        .setTemplateUri("classpath:LogstashTestLayout.json")
-//        .setStackTraceEnabled(true)
-//        .setLocationInfoEnabled(true)
-//        .build();
-//  }
+  //  @BeforeAll
+  //  static void setupAll() {
+  //    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+  //    Configuration loggerConfig = loggerContext.getConfiguration();
+  //    LogstashLayout layout = LogstashLayout
+  //        .newBuilder()
+  //        .setConfiguration(loggerConfig)
+  //        .setTemplateUri("classpath:LogstashTestLayout.json")
+  //        .setStackTraceEnabled(true)
+  //        .setLocationInfoEnabled(true)
+  //        .build();
+  //  }
 
   @BeforeEach
   void setup() {
@@ -96,5 +96,22 @@ public class FormattedDataMessageTest {
   @Test
   void loggerLogs() {
     logger.info(message);
+  }
+
+  @Test
+  void throwerLogs() {
+    try {
+      throw new RuntimeException("Nolan Ryan pitch");
+    } catch (RuntimeException e) {
+      logger.info(new FormattedDataMessage(
+          "some_message_id",
+          "This is an exception message. a=%(a) b=%(b)",
+          "some_message_type",
+          Map.ofEntries(
+              entry("a", "aVal"),
+              entry("b", "bVal"),
+              entry("c", "cVal")
+              )), e);
+    }
   }
 }

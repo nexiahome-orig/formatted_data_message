@@ -12,10 +12,12 @@
             <AppenderRef ref="Kafka"/>
         </Async>
         <Console name="CONSOLE" target="SYSTEM_OUT">
-            <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
-                            templateUri="classpath:LogstashTestLayout.json"
-                            prettyPrintEnabled="true"
-                            stackTraceEnabled="true"/>
+            <RFC5424Layout appName="MyApp"
+                           mdcId="mdc"
+                           facility="LOCAL0"
+                           enterpriseNumber="18060"
+                           newLine="true"
+                           exceptionPattern="%throwable{full}"/>
         </Console>
     </Appenders>
     <Loggers>
