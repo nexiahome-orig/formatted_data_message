@@ -1,6 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="warn">
     <Appenders>
+        <Kafka name="Kafka" topic="formatted-data-message-test">
+            <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
+                            templateUri="classpath:LogstashTestLayout.json"
+                            prettyPrintEnabled="false"
+                            stackTraceEnabled="true"/>
+            <Property name="bootstrap.servers">localhost:9092</Property>
+        </Kafka>
+        <Async name="Async">
+            <AppenderRef ref="Kafka"/>
+        </Async>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
                             templateUri="classpath:LogstashTestLayout.json"
@@ -9,8 +19,10 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Root level="info">
+        <Root level="INFO">
+            <AppenderRef ref="Kafka"/>
             <AppenderRef ref="CONSOLE"/>
         </Root>
+        <Logger name="org.apache.kafka" level="WARN" />
     </Loggers>
 </Configuration>
