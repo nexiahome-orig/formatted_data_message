@@ -1,22 +1,44 @@
 package org.apache.logging.log4j.message.lazy;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+//import org.apache.logging.log4j.core.LoggerContext;
+//import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.message.lazy.FormattedDataMessage;
+
+import java.util.Map;
+import static java.util.Map.entry;
+
+import com.vlkan.log4j2.logstash.layout.LogstashLayout;
+
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Map;
-
-import static java.util.Map.entry;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 
 public class FormattedDataMessageTest {
+  private static final Logger logger = LogManager.getLogger(FormattedDataMessageTest.class.getName());
   FormattedDataMessage message;
   String messageId = "a_message_id";
   String messageType = "a_message_type";
   String messageFormat;
   Map<String, Object> dataFields;
+
+//  @BeforeAll
+//  static void setupAll() {
+//    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
+//    Configuration loggerConfig = loggerContext.getConfiguration();
+//    LogstashLayout layout = LogstashLayout
+//        .newBuilder()
+//        .setConfiguration(loggerConfig)
+//        .setTemplateUri("classpath:LogstashTestLayout.json")
+//        .setStackTraceEnabled(true)
+//        .setLocationInfoEnabled(true)
+//        .build();
+//  }
 
   @BeforeEach
   void setup() {
@@ -69,5 +91,10 @@ public class FormattedDataMessageTest {
   void testInterpolatedJsonInterpolates() {
     String[] formats = { "INTERPOLATED_JSON" };
     assertThat(message.getFormattedMessage(formats), is(equalTo("{\"type\":\"a_message_type\", \"id\":\"a_message_id\", \"message\":\"This is a message. a=aVal b=bVal\", \"a\":\"aVal\", \"b\":\"bVal\", \"c\":\"cVal\"}")));
+  }
+
+  @Test
+  void loggerLogs() {
+    logger.info(message);
   }
 }
