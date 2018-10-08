@@ -8,7 +8,7 @@
   "class": "${json:sourceClassName}",
   "@version": 1,
   "source_host": "${hostName}",
-  "message": "${json:messageJson}",
+  "message": "${json:message:json}",
   "thread_name": "${json:threadName}",
   "@timestamp": "${json:timestamp}",
   "level": "${json:level}",
