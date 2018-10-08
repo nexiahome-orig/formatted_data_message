@@ -43,7 +43,7 @@ public class FormattedDataMessageTest {
   @BeforeEach
   void setup() {
     messageFormat = "This is a message. a=%(a) b=%(b)";
-    dataFields = Map.ofEntries(entry("a", "aVal"), entry("b", "bVal"), entry("c", "cVal"));
+    dataFields = Map.ofEntries(entry("a", "aVal"), entry("b", "bVal"), entry("c", "cVal");
     message = new FormattedDataMessage(messageId, messageFormat, messageType, dataFields);
   }
 
@@ -94,10 +94,17 @@ public class FormattedDataMessageTest {
   }
 
   @Test
+  void testLazyValuesAreCached() {
+
+  }
+
+  // make this an integration test; it's not really asserting anything yet
+  @Test
   void loggerLogs() {
     logger.info(message);
   }
 
+  // make this an integration test; it's not really asserting anything yet
   @Test
   void throwerLogs() {
     try {

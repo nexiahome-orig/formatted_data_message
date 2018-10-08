@@ -1,18 +1,22 @@
 package org.apache.logging.log4j.message.lazy;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.message.AsynchronouslyFormattable;
+import org.apache.logging.log4j.message.MapMessage;
+import org.apache.logging.log4j.message.StructuredDataId;
+import org.apache.logging.log4j.util.Chars;
+import org.apache.logging.log4j.util.EnglishEnums;
+import org.apache.logging.log4j.util.IndexedReadOnlyStringMap;
+import org.apache.logging.log4j.util.StringBuilders;
+
+import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.message.*;
-import org.apache.logging.log4j.util.Chars;
-import org.apache.logging.log4j.util.EnglishEnums;
-import org.apache.logging.log4j.util.IndexedReadOnlyStringMap;
-import org.apache.logging.log4j.util.StringBuilders;
 
 @AsynchronouslyFormattable
 public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object> {
@@ -27,33 +31,45 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private static Class<?> formatterClass;
   private static Method recursiveDeepToStringMethod;
+  private Object2ObjectArrayMap cachedStringMap;
 
-  private static synchronized Method getRecursiveDeepToString() throws ReflectiveOperationException {
-    if (recursiveDeepToStringMethod != null) {
-      return recursiveDeepToStringMethod;
+  static {
+    try {
+      formatterClass = Class.forName("org.apache.logging.log4j.message.ParameterFormatter");
+      Method[] methods = formatterClass.getDeclaredMethods();
+      recursiveDeepToStringMethod = Arrays.stream(methods).filter(m -> m.getName() == "recursiveDeepToString").findFirst().get();
+      recursiveDeepToStringMethod.setAccessible(true);
+    } catch (InaccessibleObjectException re) {
+      logger.fatal(re);
+    } catch (SecurityException se) {
+      logger.fatal("Can't make recursiveDeepToString public!", se);
+    } catch (ClassNotFoundException cnfe) {
+      logger.fatal("Can't load ParameterFormatter class!", cnfe);
     }
-    formatterClass = Class.forName("org.apache.logging.log4j.message.ParameterFormatter");
-    Method[] methods = formatterClass.getDeclaredMethods();
-    recursiveDeepToStringMethod = Arrays.stream(methods).filter(m -> m.getName() == "recursiveDeepToString").findFirst().get();
-    recursiveDeepToStringMethod.setAccessible(true);
-    return recursiveDeepToStringMethod;
   }
 
-  protected static void recursiveDeepToString(Object value, StringBuilder sb) {
+  protected synchronized void recursiveDeepToString(Object value, StringBuilder sb, String cacheKey) {
+    if (cachedStringMap.containsKey(cacheKey)) {
+      sb.append(cachedStringMap.get(cacheKey));
+      return;
+    }
+
     try {
-      getRecursiveDeepToString().invoke(null, value, sb, null);
+      int start = sb.length();
+      recursiveDeepToStringMethod.invoke(null, value, sb, null);
+      cachedStringMap.put(cacheKey, sb.substring(start));
     } catch (ReflectiveOperationException e) {
       logger.fatal("Can't get at ParameterFormatter.recursiveDeepToString()", e);
     }
   }
 
-  private static String formatValueMatch(Map<String, Object> values, String key, Object defaultVal) {
+  private String formatValueMatch(Map<String, Object> values, String key, Object defaultVal) {
     StringBuilder sb = new StringBuilder();
-    recursiveDeepToString(values.getOrDefault(key, defaultVal), sb);
+    recursiveDeepToString(values.getOrDefault(key, defaultVal), sb, key);
     return sb.toString();
   }
 
-  protected static String formatMessage(String fmt, Map<String, Object> values) {
+  protected String formatMessage(String fmt, Map<String, Object> values) {
     return RE.matcher(fmt).replaceAll(match ->
     match.group(1) != null ?
         match.group(1) :
@@ -173,6 +189,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.message = msg;
     this.type = type;
     this.maxLength = maxLength;
+    this.cachedStringMap = new Object2ObjectArrayMap(data.size() + 2);
   }
 
   /**
@@ -426,7 +443,19 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     sb.append("<type>").append(type).append("</type>\n");
     sb.append("<id>").append(structuredDataId).append("</id>\n");
     sb.append("<message>").append(message).append("</message>\n");
-    super.asXml(sb);
+    sb.append("<Map>\n");
+
+    IndexedReadOnlyStringMap data = getIndexedReadOnlyStringMap();
+    for (int i = 0; i < data.size(); i++) {
+      sb.append("  <Entry key=\"")
+          .append(data.getKeyAt(i))
+          .append("\">");
+      int size = sb.length();
+      recursiveDeepToString(data.getValueAt(i), sb, data.getKeyAt(i));
+      StringBuilders.escapeXml(sb, size);
+      sb.append("</Entry>\n");
+    }
+    sb.append("</Map>");
     sb.append("\n</StructuredData>\n");
   }
 
@@ -460,7 +489,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
       StringBuilders.escapeJson(sb, start);
       sb.append(Chars.DQUOTE).append(':').append(Chars.DQUOTE);
       start = sb.length();
-      recursiveDeepToString(data.getValueAt(i), sb);
+      recursiveDeepToString(data.getValueAt(i), sb, data.getKeyAt(i));
       StringBuilders.escapeJson(sb, start);
       sb.append(Chars.DQUOTE);
     }
