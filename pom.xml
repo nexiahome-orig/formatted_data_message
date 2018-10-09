@@ -23,6 +23,7 @@
 		<surefire.version>2.22.0</surefire.version>
 		<fastutil.version>8.2.2</fastutil.version>
 		<mockito.version>2.23.0</mockito.version>
+		<log4j2-logstash-layout.version>0.14</log4j2-logstash-layout.version>
 	</properties>
 	<repositories>
 		<repository>

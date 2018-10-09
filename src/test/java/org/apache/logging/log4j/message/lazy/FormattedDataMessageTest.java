@@ -2,25 +2,19 @@ package org.apache.logging.log4j.message.lazy;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.apache.logging.log4j.core.LoggerContext;
-//import org.apache.logging.log4j.core.config.Configuration;
-import org.apache.logging.log4j.message.lazy.FormattedDataMessage;
-
-import static org.apache.logging.log4j.message.lazy.LazyMap.lazy;
-import static org.apache.logging.log4j.message.lazy.LazyMap.nonlazy;
-
-import java.util.Map;
-import static java.util.Map.entry;
-
-import com.vlkan.log4j2.logstash.layout.LogstashLayout;
-
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
+import static org.apache.logging.log4j.message.lazy.LazyMap.entry;
+import static org.apache.logging.log4j.message.lazy.LazyMap.lazy;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
+
+//import org.apache.logging.log4j.core.LoggerContext;
+//import org.apache.logging.log4j.core.config.Configuration;
 
 public class FormattedDataMessageTest {
   private static final Logger logger = LogManager.getLogger(FormattedDataMessageTest.class.getName());
@@ -46,7 +40,7 @@ public class FormattedDataMessageTest {
   @BeforeEach
   void setup() {
     messageFormat = "This is a message. a=%(a) b=%(b)";
-    dataFields = Map.ofEntries(nonlazy("a", "aVal"), lazy("b", () -> "bVal"), entry("c", "cVal"));
+    dataFields = Map.ofEntries(entry("a", "aVal"), lazy("b", () -> "bVal"), entry("c", "cVal"));
     message = new FormattedDataMessage(messageId, messageFormat, messageType, dataFields);
   }
 
