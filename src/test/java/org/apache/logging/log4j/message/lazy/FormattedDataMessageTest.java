@@ -5,7 +5,9 @@ import org.apache.logging.log4j.Logger;
 //import org.apache.logging.log4j.core.LoggerContext;
 //import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.message.lazy.FormattedDataMessage;
+
 import static org.apache.logging.log4j.message.lazy.LazyMap.lazy;
+import static org.apache.logging.log4j.message.lazy.LazyMap.nonlazy;
 
 import java.util.Map;
 import static java.util.Map.entry;
@@ -44,7 +46,7 @@ public class FormattedDataMessageTest {
   @BeforeEach
   void setup() {
     messageFormat = "This is a message. a=%(a) b=%(b)";
-    dataFields = Map.ofEntries(entry("a", "aVal"), lazy("b", () -> "bVal"), entry("c", "cVal"));
+    dataFields = Map.ofEntries(nonlazy("a", "aVal"), lazy("b", () -> "bVal"), entry("c", "cVal"));
     message = new FormattedDataMessage(messageId, messageFormat, messageType, dataFields);
   }
 

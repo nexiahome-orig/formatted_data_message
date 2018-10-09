@@ -18,4 +18,8 @@ public final class LazyMap {
     LazyString<V> stringifiableV = new LazyString<V>(v);
     return entry(k, stringifiableV);
   }
+
+  public static <V> Map.Entry<String,Object> nonlazy(String k, V v) {
+    return entry(k, String.valueOf(v));
+  }
 }
