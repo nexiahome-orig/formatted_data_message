@@ -4,8 +4,8 @@ import java.util.Map;
 import static java.util.Map.entry;
 import java.util.function.Supplier;
 
-public class LazyMap {
-  static class LazyString<V> {
+public final class LazyMap {
+  static final class LazyString<V> {
     private Supplier<V> supplier;
 
     LazyString(Supplier<V> s) { supplier = s; }
