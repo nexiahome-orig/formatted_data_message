@@ -12,7 +12,7 @@
             <AppenderRef ref="Kafka"/>
         </Async>
         <Console name="CONSOLE" target="SYSTEM_OUT">
-            <RFC5424Layout appName="faceplate-api-test"
+            <RFC5424Layout appName="log4j2-message-lazy-test"
                            mdcId="mdc"
                            facility="LOCAL0"
                            enterpriseNumber="15749"

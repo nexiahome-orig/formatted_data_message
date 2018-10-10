@@ -1,5 +1,7 @@
 package org.apache.logging.log4j.message.lazy;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.vlkan.log4j2.logstash.layout.util.Streamable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -11,6 +13,7 @@ import org.apache.logging.log4j.util.EnglishEnums;
 import org.apache.logging.log4j.util.IndexedReadOnlyStringMap;
 import org.apache.logging.log4j.util.StringBuilders;
 
+import java.io.IOException;
 import java.lang.reflect.InaccessibleObjectException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -19,7 +22,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 @AsynchronouslyFormattable
-public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object> {
+public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object> implements Streamable {
   private static final long serialVersionUID = -598540466042791478L;
 
   private static final Pattern RE = Pattern.compile(
@@ -79,11 +82,11 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private static final int MAX_LENGTH = 32;
   private static final int HASHVAL = 31;
-  private static final List<String> RESERVED_KEYS = Arrays.asList("type", "id", "message");
+  private static final List<String> RESERVED_KEYS = Arrays.asList("type", "id", "message", "template");
 
   private StructuredDataId id;
 
-  private String message;
+  private String template;
 
   private String type;
 
@@ -154,7 +157,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    */
   public FormattedDataMessage(final String id, final String msg, final String type, final int maxLength) {
     this.id = new StructuredDataId(id, null, null, maxLength);
-    this.message = msg;
+    this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
   }
@@ -186,7 +189,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
       final Map<String, Object> data, final int maxLength) {
     super(data);
     this.id = new StructuredDataId(id, null, null, maxLength);
-    this.message = msg;
+    this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
     this.cachedStringMap = new Object2ObjectArrayMap<>(data.size() + 2);
@@ -212,7 +215,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    */
   public FormattedDataMessage(final StructuredDataId id, final String msg, final String type, final int maxLength) {
     this.id = id;
-    this.message = msg;
+    this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
   }
@@ -244,7 +247,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
       final Map<String, Object> data, final int maxLength) {
     super(data);
     this.id = id;
-    this.message = msg;
+    this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
   }
@@ -258,7 +261,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   private FormattedDataMessage(final FormattedDataMessage msg, final Map<String, Object> map) {
     super(map);
     this.id = msg.id;
-    this.message = msg.message;
+    this.template = msg.template;
     this.type = msg.type;
     this.maxLength = MAX_LENGTH;
   }
@@ -334,11 +337,11 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    */
   @Override
   public String getFormat() {
-    return formatMessage(message, getData());
+    return formatMessage(template, getData());
   }
 
   protected void setMessageFormat(final String msg) {
-    this.message = msg;
+    this.template = msg;
   }
 
   /**
@@ -410,7 +413,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
       return;
     }
     if (Format.XML.equals(format)) {
-      asXml(sdId, message, sb);
+      asXml(sdId, template, sb);
       return;
     }
     if (Format.INTERPOLATED_XML.equals(format)) {
@@ -418,7 +421,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
       return;
     }
     if (Format.JSON.equals(format)) {
-      asJson(sdId, message, sb);
+      asJson(sdId, template, sb);
       return;
     }
     if (Format.INTERPOLATED_JSON.equals(format)) {
@@ -496,6 +499,22 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     sb.append('}');
   }
 
+  @Override
+  public void streamTo(JsonGenerator stream) throws IOException {
+    stream.writeStartObject();
+    stream.writeStringField("type", type);
+    stream.writeStringField("id", id.toString());
+    stream.writeStringField("message", getFormat());
+    stream.writeStringField("template", template);
+    IndexedReadOnlyStringMap data = getIndexedReadOnlyStringMap();
+    for (int i = 0; i < data.size(); i++) {
+      StringBuilder sb = new StringBuilder();
+      recursiveDeepToString(data.getValueAt(i), sb, data.getKeyAt(i));
+      stream.writeStringField(data.getKeyAt(i), sb.toString());
+    }
+    stream.writeEndObject();
+  }
+
   /**
    * Formats the message and return it.
    * @return the formatted message.
@@ -563,7 +582,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     if (id != null ? !id.equals(that.id) : that.id != null) {
       return false;
     }
-    if (message != null ? !message.equals(that.message) : that.message != null) {
+    if (template != null ? !template.equals(that.template) : that.template != null) {
       return false;
     }
 
@@ -575,7 +594,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     int result = super.hashCode();
     result = HASHVAL * result + (type != null ? type.hashCode() : 0);
     result = HASHVAL * result + (id != null ? id.hashCode() : 0);
-    result = HASHVAL * result + (message != null ? message.hashCode() : 0);
+    result = HASHVAL * result + (template != null ? template.hashCode() : 0);
     return result;
   }
 
