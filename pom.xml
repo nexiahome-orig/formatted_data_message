@@ -7,7 +7,14 @@
 	<groupId>org.apache.logging.log4j.message.lazy</groupId>
 	<artifactId>log4j2-message-lazy</artifactId>
 	<packaging>jar</packaging>
-	<version>0.0.1-nexia1</version>
+	<version>0.0.1-nexia2</version>
+	<scm>
+		<connection>scm:git:git@github.com:nexiahome/formatted_data_message.git</connection>
+		<developerConnection>scm:git:git@github.com:nexiahome/formatted_data_message.git</developerConnection>
+		<url>https://github.com/nexiahome/formatted_data_message</url>
+		<tag>HEAD</tag>
+	</scm>
+
 	<properties>
 		<java.version>10</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
@@ -27,10 +34,22 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>local-maven-repo</id>
-			<url>file:///${project.basedir}/local-maven-repo</url>
+			<id>artifactory</id>
+			<url>https://artifactory.nexiabuild.com/artifactory/libs-release-local</url>
 		</repository>
 	</repositories>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>artifactory.nexiabuild.com-snapshots</name>
+			<url>https://artifactory.nexiabuild.com/artifactory/libs-snapshot-local</url>
+		</snapshotRepository>
+		<repository>
+			<id>central</id>
+			<name>artifactory.nexiabuild.com-releases</name>
+			<url>https://artifactory.nexiabuild.com/artifactory/libs-release-local</url>
+		</repository>
+	</distributionManagement>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
 		<dependency>
