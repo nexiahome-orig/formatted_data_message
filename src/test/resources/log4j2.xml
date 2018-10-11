@@ -12,10 +12,10 @@
             <AppenderRef ref="Kafka"/>
         </Async>
         <Console name="CONSOLE" target="SYSTEM_OUT">
-            <RFC5424Layout appName="MyApp"
+            <RFC5424Layout appName="faceplate-api-test"
                            mdcId="mdc"
                            facility="LOCAL0"
-                           enterpriseNumber="18060"
+                           enterpriseNumber="15749"
                            newLine="true"
                            exceptionPattern="%throwable{full}"/>
         </Console>
