@@ -31,7 +31,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private static Class<?> formatterClass;
   private static Method recursiveDeepToStringMethod;
-  private Object2ObjectArrayMap cachedStringMap;
+  private Object2ObjectArrayMap<String, String> cachedStringMap;
 
   static {
     try {
@@ -189,7 +189,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.message = msg;
     this.type = type;
     this.maxLength = maxLength;
-    this.cachedStringMap = new Object2ObjectArrayMap(data.size() + 2);
+    this.cachedStringMap = new Object2ObjectArrayMap<>(data.size() + 2);
   }
 
   /**
