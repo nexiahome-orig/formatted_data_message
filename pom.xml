@@ -51,11 +51,6 @@
 		</repository>
 	</distributionManagement>
 	<dependencies>
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/it.unimi.dsi/fastutil -->
 		<dependency>
 			<groupId>it.unimi.dsi</groupId>
@@ -164,6 +159,9 @@
 					<configuration>
 						<encoding>UTF-8</encoding>
 						<release>${java.version}</release>
+						<compilerArgs>
+							<arg>-Xlint:all</arg>
+						</compilerArgs>
 					</configuration>
 				</plugin>
 				<plugin>
