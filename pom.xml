@@ -19,16 +19,15 @@
 		<java.version>11</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
+		<jackson.version>2.9.7</jackson.version>
+		<commons-lang3.version>3.8.1</commons-lang3.version>
+		<fastutil.version>8.2.2</fastutil.version>
 		<log4j.version>2.11.1</log4j.version>
 		<kafka.version>1.1.1</kafka.version>
-		<log4j2-logstash-layout.version>0.15-nexia1</log4j2-logstash-layout.version>
-		<jackson.version>2.9.6</jackson.version>
-		<commons-lang3.version>3.8.1</commons-lang3.version>
 		<junit.jupiter.version>5.3.1</junit.jupiter.version>
 		<junit.platform.version>1.2.0</junit.platform.version>
 		<hamcrest.version>2.0.0.0</hamcrest.version>
 		<surefire.version>2.22.0</surefire.version>
-		<fastutil.version>8.2.2</fastutil.version>
 		<mockito.version>2.23.0</mockito.version>
 	</properties>
 	<repositories>
@@ -51,14 +50,19 @@
 	</distributionManagement>
 	<dependencies>
 		<dependency>
+			<groupId>com.vlkan.log4j2</groupId>
+			<artifactId>log4j2-logstash-layout</artifactId>
+			<version>0.15-nexia1</version>
+		</dependency>
+		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>com.vlkan.log4j2</groupId>
-			<artifactId>log4j2-logstash-layout</artifactId>
-			<version>${log4j2-logstash-layout.version}</version>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
