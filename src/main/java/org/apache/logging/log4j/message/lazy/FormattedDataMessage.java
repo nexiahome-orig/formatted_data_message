@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,8 +85,9 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
         .replaceAll(
             match ->
                 match.group(1) != null
-                    ? match.group(1)
-                    : formatValueMatch(values, match.group(3), match.group(2)));
+                    ? Matcher.quoteReplacement(match.group(1))
+                    : Matcher.quoteReplacement(
+                        formatValueMatch(values, match.group(3), match.group(2))));
   }
 
   private static final int MAX_LENGTH = 32;
