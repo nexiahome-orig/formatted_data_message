@@ -8,10 +8,14 @@ public final class LazyMap {
     private Supplier<V> supplier;
     private V value;
 
-    LazyString(Supplier<V> s) { supplier = s; }
+    LazyString(Supplier<V> s) {
+      supplier = s;
+    }
 
     @Override
-    public String toString() { return String.valueOf(getValue()); }
+    public String toString() {
+      return String.valueOf(getValue());
+    }
 
     V getValue() {
       if (value == null) {
@@ -21,12 +25,12 @@ public final class LazyMap {
     }
   }
 
-  public static <V> Map.Entry<String,Object> lazy(String k, Supplier<V> v) {
+  public static <V> Map.Entry<String, Object> lazy(String k, Supplier<V> v) {
     LazyString<V> stringifiableV = new LazyString<V>(v);
     return Map.entry(k, stringifiableV);
   }
 
-  public static <V> Map.Entry<String,Object> entry(String k, V v) {
+  public static <V> Map.Entry<String, Object> entry(String k, V v) {
     return Map.entry(k, String.valueOf(v));
   }
 }

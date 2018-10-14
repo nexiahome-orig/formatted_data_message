@@ -1,26 +1,26 @@
 package org.apache.logging.log4j.message.lazy;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-import java.util.function.Supplier;
-
-import static org.apache.logging.log4j.message.lazy.LazyMap.lazy;
 import static org.apache.logging.log4j.message.lazy.LazyMap.entry;
+import static org.apache.logging.log4j.message.lazy.LazyMap.lazy;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.junit.MatcherAssert.assertThat;
 import static org.mockito.Mockito.*;
 
+import java.util.Map;
+import java.util.function.Supplier;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 public class LazyMapTest {
-  Supplier<String> stringSupplier = new Supplier<String>() {
-    @Override
-    public String get() {
-      return "value";
-    }
-  };
+  Supplier<String> stringSupplier =
+      new Supplier<String>() {
+        @Override
+        public String get() {
+          return "value";
+        }
+      };
 
   @Nested
   @DisplayName("#lazy")

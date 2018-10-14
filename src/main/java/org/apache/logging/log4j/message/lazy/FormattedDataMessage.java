@@ -3,6 +3,13 @@ package org.apache.logging.log4j.message.lazy;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.vlkan.log4j2.logstash.layout.util.Streamable;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import java.io.IOException;
+import java.lang.reflect.InaccessibleObjectException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.message.AsynchronouslyFormattable;
@@ -13,23 +20,18 @@ import org.apache.logging.log4j.util.EnglishEnums;
 import org.apache.logging.log4j.util.IndexedReadOnlyStringMap;
 import org.apache.logging.log4j.util.StringBuilders;
 
-import java.io.IOException;
-import java.lang.reflect.InaccessibleObjectException;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 @AsynchronouslyFormattable
-public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object> implements Streamable {
+public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object>
+    implements Streamable {
   private static final long serialVersionUID = -598540466042791478L;
 
-  private static final Pattern RE = Pattern.compile(
-      "\\\\(.)" +         // Treat any character after a backslash literally
-          "|" +
-          "(%\\(([^)]+)\\))"  // Look for %(keys) to replace
-      );
+  private static final Pattern RE =
+      Pattern.compile(
+          "\\\\(.)"
+              + // Treat any character after a backslash literally
+              "|"
+              + "(%\\(([^)]+)\\))" // Look for %(keys) to replace
+          );
   private static final Logger logger = LogManager.getLogger(FormattedDataMessage.class.getName());
 
   private static Class<?> formatterClass;
@@ -40,7 +42,11 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     try {
       formatterClass = Class.forName("org.apache.logging.log4j.message.ParameterFormatter");
       Method[] methods = formatterClass.getDeclaredMethods();
-      recursiveDeepToStringMethod = Arrays.stream(methods).filter(m -> m.getName() == "recursiveDeepToString").findFirst().get();
+      recursiveDeepToStringMethod =
+          Arrays.stream(methods)
+              .filter(m -> m.getName() == "recursiveDeepToString")
+              .findFirst()
+              .get();
       recursiveDeepToStringMethod.setAccessible(true);
     } catch (InaccessibleObjectException re) {
       logger.fatal(re);
@@ -51,7 +57,8 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     }
   }
 
-  protected synchronized void recursiveDeepToString(Object value, StringBuilder sb, String cacheKey) {
+  protected synchronized void recursiveDeepToString(
+      Object value, StringBuilder sb, String cacheKey) {
     if (cachedStringMap.containsKey(cacheKey)) {
       sb.append(cachedStringMap.get(cacheKey));
       return;
@@ -73,16 +80,18 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   }
 
   protected String formatMessage(String fmt, Map<String, Object> values) {
-    return RE.matcher(fmt).replaceAll(match ->
-    match.group(1) != null ?
-        match.group(1) :
-          formatValueMatch(values, match.group(3), match.group(2))
-        );
+    return RE.matcher(fmt)
+        .replaceAll(
+            match ->
+                match.group(1) != null
+                    ? match.group(1)
+                    : formatValueMatch(values, match.group(3), match.group(2)));
   }
 
   private static final int MAX_LENGTH = 32;
   private static final int HASHVAL = 31;
-  private static final List<String> RESERVED_KEYS = Arrays.asList("type", "id", "message", "template");
+  private static final List<String> RESERVED_KEYS =
+      Arrays.asList("type", "id", "message", "template");
 
   private StructuredDataId id;
 
@@ -92,9 +101,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private final int maxLength;
 
-  /**
-   * Supported formats.
-   */
+  /** Supported formats. */
   public enum Format {
     /** The map should be formatted as XML. */
     XML,
@@ -118,11 +125,16 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
      * @return a Format
      */
     public static Format lookupIgnoreCase(final String format) {
-      return XML.name().equalsIgnoreCase(format) ? XML //
-          : INTERPOLATED_XML.name().equalsIgnoreCase(format) ? INTERPOLATED_XML //
-              : JSON.name().equalsIgnoreCase(format) ? JSON //
-                  : INTERPOLATED_JSON.name().equalsIgnoreCase(format) ? INTERPOLATED_JSON //
-                      : FULL.name().equalsIgnoreCase(format) ? FULL //
+      return XML.name().equalsIgnoreCase(format)
+          ? XML //
+          : INTERPOLATED_XML.name().equalsIgnoreCase(format)
+              ? INTERPOLATED_XML //
+              : JSON.name().equalsIgnoreCase(format)
+                  ? JSON //
+                  : INTERPOLATED_JSON.name().equalsIgnoreCase(format)
+                      ? INTERPOLATED_JSON //
+                      : FULL.name().equalsIgnoreCase(format)
+                          ? FULL //
                           : null;
     }
 
@@ -132,12 +144,16 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
      * @return All {@code Format} names.
      */
     public static String[] names() {
-      return new String[] {XML.name(), INTERPOLATED_XML.name(), JSON.name(), INTERPOLATED_JSON.name(), FULL.name()};
+      return new String[] {
+        XML.name(), INTERPOLATED_XML.name(), JSON.name(), INTERPOLATED_JSON.name(), FULL.name()
+      };
     }
   }
 
   /**
-   * Creates a FormattedDataMessage using an ID (max 32 characters), message, and type (max 32 characters).
+   * Creates a FormattedDataMessage using an ID (max 32 characters), message, and type (max 32
+   * characters).
+   *
    * @param id The String id.
    * @param msg The message.
    * @param type The message type.
@@ -147,15 +163,17 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   }
 
   /**
-   * Creates a FormattedDataMessage using an ID (user specified max characters), message, and type (user specified
-   * maximum number of characters).
+   * Creates a FormattedDataMessage using an ID (user specified max characters), message, and type
+   * (user specified maximum number of characters).
+   *
    * @param id The String id.
    * @param msg The message.
    * @param type The message type.
    * @param maxLength The maximum length of keys;
    * @since 2.9
    */
-  public FormattedDataMessage(final String id, final String msg, final String type, final int maxLength) {
+  public FormattedDataMessage(
+      final String id, final String msg, final String type, final int maxLength) {
     this.id = new StructuredDataId(id, null, null, maxLength);
     this.template = msg;
     this.type = type;
@@ -163,21 +181,23 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   }
 
   /**
-   * Creates a FormattedDataMessage using an ID (max 32 characters), message, type (max 32 characters), and an
-   * initial map of structured data to include.
+   * Creates a FormattedDataMessage using an ID (max 32 characters), message, type (max 32
+   * characters), and an initial map of structured data to include.
+   *
    * @param id The String id.
    * @param msg The message.
    * @param type The message type.
    * @param data The StructuredData map.
    */
-  public FormattedDataMessage(final String id, final String msg, final String type,
-      final Map<String, Object> data) {
+  public FormattedDataMessage(
+      final String id, final String msg, final String type, final Map<String, Object> data) {
     this(id, msg, type, data, MAX_LENGTH);
   }
 
   /**
-   * Creates a FormattedDataMessage using an (user specified max characters), message, and type (user specified
-   * maximum number of characters, and an initial map of structured data to include.
+   * Creates a FormattedDataMessage using an (user specified max characters), message, and type
+   * (user specified maximum number of characters, and an initial map of structured data to include.
+   *
    * @param id The String id.
    * @param msg The message.
    * @param type The message type.
@@ -185,8 +205,12 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    * @param maxLength The maximum length of keys;
    * @since 2.9
    */
-  public FormattedDataMessage(final String id, final String msg, final String type,
-      final Map<String, Object> data, final int maxLength) {
+  public FormattedDataMessage(
+      final String id,
+      final String msg,
+      final String type,
+      final Map<String, Object> data,
+      final int maxLength) {
     super(data);
     this.id = new StructuredDataId(id, null, null, maxLength);
     this.template = msg;
@@ -197,6 +221,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Creates a FormattedDataMessage using a StructuredDataId, message, and type (max 32 characters).
+   *
    * @param id The StructuredDataId.
    * @param msg The message.
    * @param type The message type.
@@ -207,13 +232,15 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Creates a FormattedDataMessage using a StructuredDataId, message, and type (max 32 characters).
+   *
    * @param id The StructuredDataId.
    * @param msg The message.
    * @param type The message type.
    * @param maxLength The maximum length of keys;
    * @since 2.9
    */
-  public FormattedDataMessage(final StructuredDataId id, final String msg, final String type, final int maxLength) {
+  public FormattedDataMessage(
+      final StructuredDataId id, final String msg, final String type, final int maxLength) {
     this.id = id;
     this.template = msg;
     this.type = type;
@@ -221,21 +248,26 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   }
 
   /**
-   * Creates a FormattedDataMessage using a StructuredDataId, message, type (max 32 characters), and an initial map
-   * of structured data to include.
+   * Creates a FormattedDataMessage using a StructuredDataId, message, type (max 32 characters), and
+   * an initial map of structured data to include.
+   *
    * @param id The StructuredDataId.
    * @param msg The message.
    * @param type The message type.
    * @param data The StructuredData map.
    */
-  public FormattedDataMessage(final StructuredDataId id, final String msg, final String type,
+  public FormattedDataMessage(
+      final StructuredDataId id,
+      final String msg,
+      final String type,
       final Map<String, Object> data) {
     this(id, msg, type, data, MAX_LENGTH);
   }
 
   /**
-   * Creates a FormattedDataMessage using a StructuredDataId, message, type (max 32 characters), and an initial map
-   * of structured data to include.
+   * Creates a FormattedDataMessage using a StructuredDataId, message, type (max 32 characters), and
+   * an initial map of structured data to include.
+   *
    * @param id The StructuredDataId.
    * @param msg The message.
    * @param type The message type.
@@ -243,8 +275,12 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    * @param maxLength The maximum length of keys;
    * @since 2.9
    */
-  public FormattedDataMessage(final StructuredDataId id, final String msg, final String type,
-      final Map<String, Object> data, final int maxLength) {
+  public FormattedDataMessage(
+      final StructuredDataId id,
+      final String msg,
+      final String type,
+      final Map<String, Object> data,
+      final int maxLength) {
     super(data);
     this.id = id;
     this.template = msg;
@@ -252,9 +288,9 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.maxLength = maxLength;
   }
 
-
   /**
    * Constructor based on a FormattedDataMessage.
+   *
    * @param msg The FormattedDataMessage.
    * @param map The StructuredData map.
    */
@@ -266,15 +302,14 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.maxLength = MAX_LENGTH;
   }
 
-  /**
-   * Basic constructor.
-   */
+  /** Basic constructor. */
   protected FormattedDataMessage() {
     maxLength = MAX_LENGTH;
   }
 
   /**
    * Returns the supported formats.
+   *
    * @return An array of the supported format names.
    */
   @Override
@@ -284,6 +319,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Returns this message id.
+   *
    * @return the StructuredDataId.
    */
   public StructuredDataId getId() {
@@ -292,6 +328,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Sets the id from a String. This ID can be at most 32 characters long.
+   *
    * @param id The String id.
    */
   protected void setId(final String id) {
@@ -300,6 +337,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Sets the id.
+   *
    * @param id The StructuredDataId.
    */
   protected void setId(final StructuredDataId id) {
@@ -308,6 +346,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Returns this message type.
+   *
    * @return the type.
    */
   public String getType() {
@@ -316,7 +355,8 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   protected void setType(final String type) {
     if (type.length() > MAX_LENGTH) {
-      throw new IllegalArgumentException("structured data type exceeds maximum length of 32 characters: " + type);
+      throw new IllegalArgumentException(
+          "structured data type exceeds maximum length of 32 characters: " + type);
     }
     this.type = type;
   }
@@ -333,6 +373,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Returns the message, interpolated.
+   *
    * @return the message, interpolated.
    */
   @Override
@@ -360,7 +401,6 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
    * @param format The format identifier. Ignored in this implementation.
    * @return The formatted String.
    */
-
   @Override
   public String asString(final String format) {
     try {
@@ -373,10 +413,10 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   /**
    * Formats the structured data as described in RFC 5424.
    *
-   * @param format           "full" will include the type and message. null will return only the STRUCTURED-DATA as
-   *                         described in RFC 5424
-   * @param structuredDataId The SD-ID as described in RFC 5424. If null the value in the StructuredData
-   *                         will be used.
+   * @param format "full" will include the type and message. null will return only the
+   *     STRUCTURED-DATA as described in RFC 5424
+   * @param structuredDataId The SD-ID as described in RFC 5424. If null the value in the
+   *     StructuredData will be used.
    * @return The formatted String.
    */
   public final String asString(final Format format, final StructuredDataId structuredDataId) {
@@ -388,13 +428,14 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   /**
    * Formats the structured data as described in RFC 5424.
    *
-   * @param format           "full" will include the type and message. null will return only the STRUCTURED-DATA as
-   *                         described in RFC 5424
-   * @param structuredDataId The SD-ID as described in RFC 5424. If null the value in the StructuredData
-   *                         will be used.
+   * @param format "full" will include the type and message. null will return only the
+   *     STRUCTURED-DATA as described in RFC 5424
+   * @param structuredDataId The SD-ID as described in RFC 5424. If null the value in the
+   *     StructuredData will be used.
    * @param sb The StringBuilder to append the formatted message to.
    */
-  public final void asString(final Format format, final StructuredDataId structuredDataId, final StringBuilder sb) {
+  public final void asString(
+      final Format format, final StructuredDataId structuredDataId, final StringBuilder sb) {
     final boolean full = Format.FULL.equals(format);
     if (full) {
       final String myType = getType();
@@ -450,9 +491,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
     IndexedReadOnlyStringMap data = getIndexedReadOnlyStringMap();
     for (int i = 0; i < data.size(); i++) {
-      sb.append("  <Entry key=\"")
-          .append(data.getKeyAt(i))
-          .append("\">");
+      sb.append("  <Entry key=\"").append(data.getKeyAt(i)).append("\">");
       int size = sb.length();
       recursiveDeepToString(data.getValueAt(i), sb, data.getKeyAt(i));
       StringBuilders.escapeXml(sb, size);
@@ -517,6 +556,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Formats the message and return it.
+   *
    * @return the formatted message.
    */
   @Override
@@ -526,11 +566,11 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   /**
    * Formats the message according the the specified format.
-   * @param formats An array of Strings that provide extra information about how to format the message.
-   * FormattedDataMessage accepts only a format of "FULL" which will cause the event type to be
-   * prepended and the event message to be appended. Specifying any other value will cause only the
-   * StructuredData to be included. The default is "FULL".
    *
+   * @param formats An array of Strings that provide extra information about how to format the
+   *     message. FormattedDataMessage accepts only a format of "FULL" which will cause the event
+   *     type to be prepended and the event message to be appended. Specifying any other value will
+   *     cause only the StructuredData to be included. The default is "FULL".
    * @return the formatted message.
    */
   @Override
@@ -555,7 +595,6 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   public String toString() {
     return asString(null, null);
   }
-
 
   @Override
   public FormattedDataMessage newInstance(final Map<String, Object> map) {
@@ -603,65 +642,49 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final byte value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final char value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final double value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final float value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final int value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final long value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final Object value) {
     validateKey(key);
   }
 
-  /**
-   * @since 2.9
-   */
+  /** @since 2.9 */
   @Override
   protected void validate(final String key, final short value) {
     validateKey(key);
@@ -674,18 +697,20 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   protected void validateKey(final String key) {
     if (maxLength > 0 && key.length() > maxLength) {
-      throw new IllegalArgumentException("Structured data keys are limited to " + maxLength +
-          " characters. key: " + key);
+      throw new IllegalArgumentException(
+          "Structured data keys are limited to " + maxLength + " characters. key: " + key);
     }
     for (int i = 0; i < key.length(); i++) {
       final char c = key.charAt(i);
       if (c < '!' || c > '~' || c == '=' || c == ']' || c == '"') {
-        throw new IllegalArgumentException("Structured data keys must contain printable US ASCII characters" +
-            "and may not contain a space, =, ], or \"");
+        throw new IllegalArgumentException(
+            "Structured data keys must contain printable US ASCII characters"
+                + "and may not contain a space, =, ], or \"");
       }
     }
     if (RESERVED_KEYS.contains(key)) {
-      throw new IllegalArgumentException("Structured data keys " + RESERVED_KEYS + " are reserved. key: " + key);
+      throw new IllegalArgumentException(
+          "Structured data keys " + RESERVED_KEYS + " are reserved. key: " + key);
     }
   }
 }
