@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn">
+<Configuration status="DEBUG">
     <Appenders>
-        <Kafka name="Kafka" topic="formatted-data-message-test">
+        <Kafka name="Kafka" topic="formatted-data-message-test" key="$${hostName}">
             <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
-                            templateUri="classpath:LogstashTestLayout.json"
-                            prettyPrintEnabled="false"
+                            eventTemplateUri="classpath:LogstashTestLayout.json"
+                            prettyPrintEnabled="true"
+                            locationInfoEnabled="true"
                             stackTraceEnabled="true"/>
             <Property name="bootstrap.servers">localhost:9092</Property>
         </Kafka>
@@ -18,6 +19,13 @@
                            enterpriseNumber="15749"
                            newLine="true"
                            exceptionPattern="%throwable{full}"/>
+        </Console>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
+                            eventTemplateUri="classpath:LogstashTestLayout.json"
+                            prettyPrintEnabled="true"
+                            locationInfoEnabled="true"
+                            stackTraceEnabled="true"/>
         </Console>
     </Appenders>
     <Loggers>

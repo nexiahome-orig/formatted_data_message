@@ -1,18 +1,19 @@
 {
-  "mdc": "${json:mdc}",
-  "ndc": "${json:ndc}",
-  "exception_class": "${json:exceptionClassName}",
-  "exception_message": "${json:exceptionMessage}",
-  "stacktrace": "${json:exceptionStackTrace}",
-  "line_number": "${json:sourceLineNumber}",
-  "class": "${json:sourceClassName}",
   "@version": 1,
-  "source_host": "${hostName}",
-  "message": "${json:message:json}",
-  "thread_name": "${json:threadName}",
   "@timestamp": "${json:timestamp}",
+  "source_host": "${hostName}",
   "level": "${json:level}",
-  "file": "${json:sourceFileName}",
-  "method": "${json:sourceMethodName}",
-  "logger_name": "${json:loggerName}"
+  "logger_name": "${json:logger:name}",
+  "thread_name": "${json:thread:name}",
+  "mdc": "${json:mdc}",
+  "message": "${json:message:json}",
+  "class": "${json:source:className}",
+  "method": "${json:source:methodName}",
+  "file": "${json:source:fileName}",
+  "line_number": "${json:source:lineNumber}",
+  "exception": {
+    "exception_class": "${json:exception:className}",
+    "exception_message": "${json:exception:message}",
+    "stacktrace": "${json:exception:stackTrace:text}"
+  }
 }
