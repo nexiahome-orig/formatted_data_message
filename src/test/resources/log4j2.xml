@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG">
+<Configuration status="WARN">
     <Appenders>
         <Kafka name="Kafka" topic="formatted-data-message-test" key="$${hostName}">
             <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
                             eventTemplateUri="classpath:LogstashTestLayout.json"
-                            prettyPrintEnabled="true"
+                            prettyPrintEnabled="false"
                             locationInfoEnabled="true"
                             stackTraceEnabled="true"/>
             <Property name="bootstrap.servers">localhost:9092</Property>
@@ -20,7 +20,7 @@
                            newLine="true"
                            exceptionPattern="%throwable{full}"/>
         </Console>
-        <Console name="CONSOLE" target="SYSTEM_OUT">
+        <Console name="CONSOLE_JSON" target="SYSTEM_OUT">
             <LogstashLayout dateTimeFormatPattern="yyyy-MM-dd'T'HH:mm:ss.SSSZZZ"
                             eventTemplateUri="classpath:LogstashTestLayout.json"
                             prettyPrintEnabled="true"
@@ -29,10 +29,12 @@
         </Console>
     </Appenders>
     <Loggers>
+        <Logger name="org.apache.kafka" level="WARN" additivity="false">
+            <AppenderRef ref="CONSOLE"/>
+        </Logger>
         <Root level="INFO">
             <AppenderRef ref="Kafka"/>
             <AppenderRef ref="CONSOLE"/>
         </Root>
-        <Logger name="org.apache.kafka" level="WARN" />
     </Loggers>
 </Configuration>

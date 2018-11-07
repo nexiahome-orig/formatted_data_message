@@ -12,30 +12,13 @@ import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-// import org.apache.logging.log4j.core.LoggerContext;
-// import org.apache.logging.log4j.core.config.Configuration;
-
 public class FormattedDataMessageTest {
-  private static final Logger logger =
-      LogManager.getLogger(FormattedDataMessageTest.class.getName());
+  private static final Logger logger = LogManager.getLogger(FormattedDataMessageTest.class);
   FormattedDataMessage message;
   String messageId = "a_message_id";
   String messageType = "a_message_type";
   String messageFormat;
   Map<String, Object> dataFields;
-
-  //  @BeforeAll
-  //  static void setupAll() {
-  //    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(false);
-  //    Configuration loggerConfig = loggerContext.getConfiguration();
-  //    LogstashLayout layout = LogstashLayout
-  //        .newBuilder()
-  //        .setConfiguration(loggerConfig)
-  //        .setTemplateUri("classpath:LogstashTestLayout.json")
-  //        .setStackTraceEnabled(true)
-  //        .setLocationInfoEnabled(true)
-  //        .build();
-  //  }
 
   @BeforeEach
   void setup() {
