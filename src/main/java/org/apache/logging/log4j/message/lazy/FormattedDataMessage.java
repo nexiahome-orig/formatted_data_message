@@ -23,7 +23,7 @@ import org.apache.logging.log4j.util.IndexedReadOnlyStringMap;
 import org.apache.logging.log4j.util.StringBuilders;
 
 @AsynchronouslyFormattable
-public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object>
+public final class FormattedDataMessage extends MapMessage<FormattedDataMessage, Object>
     implements Streamable {
   private static final long serialVersionUID = -598540466042791478L;
 
@@ -38,7 +38,6 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private static Class<?> formatterClass;
   private static Method recursiveDeepToStringMethod;
-  private Object2ObjectArrayMap<String, String> cachedStringMap;
 
   static {
     try {
@@ -110,6 +109,8 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
   private String type;
 
   private final int maxLength;
+
+  private final Object2ObjectArrayMap<String, String> cachedStringMap;
 
   /** Supported formats. */
   public enum Format {
@@ -188,6 +189,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
+    this.cachedStringMap = new Object2ObjectArrayMap<>(4);
   }
 
   /**
@@ -226,7 +228,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
-    this.cachedStringMap = new Object2ObjectArrayMap<>(data.size() + 2);
+    this.cachedStringMap = new Object2ObjectArrayMap<>(data.size() + 4);
   }
 
   /**
@@ -255,6 +257,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
+    this.cachedStringMap = new Object2ObjectArrayMap<>(4);
   }
 
   /**
@@ -296,6 +299,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.template = msg;
     this.type = type;
     this.maxLength = maxLength;
+    this.cachedStringMap = new Object2ObjectArrayMap<>(data.size() + 4);
   }
 
   /**
@@ -310,11 +314,7 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
     this.template = msg.template;
     this.type = msg.type;
     this.maxLength = MAX_LENGTH;
-  }
-
-  /** Basic constructor. */
-  protected FormattedDataMessage() {
-    maxLength = MAX_LENGTH;
+    this.cachedStringMap = new Object2ObjectArrayMap<>(map.size() + 4);
   }
 
   /**
