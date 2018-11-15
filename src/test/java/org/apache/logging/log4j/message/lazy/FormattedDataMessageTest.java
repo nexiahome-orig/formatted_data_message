@@ -9,6 +9,7 @@ import static org.hamcrest.junit.MatcherAssert.assertThat;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -97,6 +98,26 @@ public class FormattedDataMessageTest {
         is(
             equalTo(
                 "{\"type\":\"a_message_type\", \"id\":\"a_message_id\", \"message\":\"This is a message. a=aVal b=bVal\", \"a\":\"aVal\", \"b\":\"bVal\", \"c\":\"cVal\"}")));
+  }
+
+  @Test
+  void testInterpolatedJsonInterpolatesFromMDC() {
+    var messageFormatMDC = "This is a message. a=%(a) b=%(b) d=%(d)";
+    var dataFieldsMDC =
+        Map.ofEntries(entry("a", "aVal"), lazy("b", () -> "bVal"), entry("c", "cVal"));
+    var messageMDC =
+        new FormattedDataMessage(messageId, messageFormatMDC, messageType, dataFieldsMDC);
+    String[] formats = {"INTERPOLATED_JSON"};
+    ThreadContext.put("d", "dVal");
+    try {
+      assertThat(
+          messageMDC.getFormattedMessage(formats),
+          is(
+              equalTo(
+                  "{\"type\":\"a_message_type\", \"id\":\"a_message_id\", \"message\":\"This is a message. a=aVal b=bVal d=dVal\", \"a\":\"aVal\", \"b\":\"bVal\", \"c\":\"cVal\"}")));
+    } finally {
+      ThreadContext.remove("d");
+    }
   }
 
   @Test

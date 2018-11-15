@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.message.AsynchronouslyFormattable;
 import org.apache.logging.log4j.message.MapMessage;
 import org.apache.logging.log4j.message.StructuredDataId;
@@ -76,7 +77,14 @@ public class FormattedDataMessage extends MapMessage<FormattedDataMessage, Objec
 
   private String formatValueMatch(Map<String, Object> values, String key, Object defaultVal) {
     StringBuilder sb = new StringBuilder();
-    recursiveDeepToString(values.getOrDefault(key, defaultVal), sb, key);
+    Object value = values.get(key);
+    if (value == null) {
+      value = ThreadContext.get(key);
+    }
+    if (value == null) {
+      value = defaultVal;
+    }
+    recursiveDeepToString(value, sb, key);
     return sb.toString();
   }
 

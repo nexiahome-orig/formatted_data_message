@@ -4,7 +4,7 @@
     <groupId>org.apache.logging.log4j.message.lazy</groupId>
     <artifactId>log4j2-message-lazy</artifactId>
     <packaging>jar</packaging>
-    <version>0.0.3-nexia8</version>
+    <version>0.0.4-nexia1</version>
     <scm>
         <connection>scm:git:git@github.com:nexiahome/formatted_data_message.git</connection>
         <developerConnection>scm:git:git@github.com:nexiahome/formatted_data_message.git</developerConnection>
